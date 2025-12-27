@@ -171,6 +171,13 @@ Your voice is **Charon** - deep, resonant, and commanding authority.` },
     const toastTimeout = useRef<NodeJS.Timeout | null>(null);
     const errorToastTimeout = useRef<NodeJS.Timeout | null>(null);
 
+    // Refs for animation loop to avoid re-running effect on high-frequency updates
+    const vadStatusRef = useRef(vadStatus);
+
+    useEffect(() => {
+        vadStatusRef.current = vadStatus;
+    }, [vadStatus]);
+
     const audioCaptureService = useRef<AudioCaptureService | null>(null);
     const audioPlaybackService = useRef<AudioPlaybackService | null>(null);
     const [settingsLoaded, setSettingsLoaded] = useState(false);

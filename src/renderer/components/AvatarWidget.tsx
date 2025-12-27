@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ipc } from '../ipc';
 import { styles } from './styles';
 
@@ -14,7 +14,6 @@ export const AvatarWidget: React.FC<AvatarWidgetProps> = ({ vadStatus, collapsed
 
     const smokeCanvasRef = useRef<HTMLCanvasElement>(null);
     const smokeParticles = useRef<any[]>([]);
-
     const blinkTimeout = useRef<NodeJS.Timeout | null>(null);
     const audioLevelRef = useRef(0);
     const vadStatusRef = useRef(vadStatus);
@@ -23,14 +22,12 @@ export const AvatarWidget: React.FC<AvatarWidgetProps> = ({ vadStatus, collapsed
         vadStatusRef.current = vadStatus;
     }, [vadStatus]);
 
-    // Audio level subscription
+    // Audio Level Listener - subscribing here avoids re-rendering the parent component
     useEffect(() => {
-        const unsubscribe = ipc.on('audio-level', (_event, data) => {
+        const unsubscribe = ipc.on('audio-level', (_event: any, data: { level: number }) => {
             audioLevelRef.current = data.level;
         });
-        return () => {
-            unsubscribe();
-        };
+        return () => unsubscribe();
     }, []);
 
     // Eye blink animation
@@ -42,9 +39,7 @@ export const AvatarWidget: React.FC<AvatarWidgetProps> = ({ vadStatus, collapsed
 
         return () => {
             clearInterval(blinkInterval);
-            if (blinkTimeout.current) {
-                clearTimeout(blinkTimeout.current);
-            }
+            if (blinkTimeout.current) clearTimeout(blinkTimeout.current);
         };
     }, []);
 
@@ -63,8 +58,6 @@ export const AvatarWidget: React.FC<AvatarWidgetProps> = ({ vadStatus, collapsed
 
     // Smoke particle animation
     useEffect(() => {
-        if (collapsed) return;
-
         const canvas = smokeCanvasRef.current;
         if (!canvas) return;
 
